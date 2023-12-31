@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Me</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            background-color: #f2b8b882;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #container {
+            text-align: center;
+        }
+
+        #question {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        #buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            position: relative;
+        }
+
+        .red-text {
+            color: red;
+            font-style: italic;
+            font-size: 72px;
+        }
+
+        #nameInput {
+            padding: 10px 10px;
+            font-size: 18px;
+        }
+
+        .button {
+            padding: 10px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: transform 0.3s;
+        }
+
+        #yes {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        #no {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        #no.hovered {
+            transition: transform 0.5s;
+        }
+
+        /* Custom alert styles */
+        #custom-alert {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #f2b8b882;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            z-index: 9999;
+        }
+
+        #animation-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <input type="text" id="nameInput" placeholder="Enter your first name only">
+        <button type="button" class="button" onclick="handleNameEntered()">Submit</button>
+    </div>
+
+    <div id="content" style="display: none;">
+        <div id="question"></div>
+        <div id="buttons">
+            <button class="button" id="yes" onclick="handleYesClick()">Yes</button>
+            <button class="button" id="no" onmouseover="moveNoButton()" onmouseout="resetNoButton()">No</button>
+        </div>
+    </div>
+
+    <div id="custom-alert"></div>
+
+
+    <script>
+      
+        function handleNameEntered() {
+            // Get the entered name
+            const userName = document.getElementById('nameInput').value;
+
+            // Hide the input and display the content
+            const inputContainer = document.getElementById('container');
+            inputContainer.style.display = 'none';
+
+            const contentDiv = document.getElementById('content');
+            contentDiv.style.display = 'block';
+
+            const questionDiv = document.getElementById('question');
+            questionDiv.innerHTML = `Dear <span class="red-text">${userName}</span>,<br/>Would you like to go on a date with me?`;
+        }
+      
+        function handleYesClick() {
+            // Create and display custom alert
+            const customAlert = document.getElementById('custom-alert');
+            customAlert.innerHTML = `
+                <p>Yay! 🌟</p>
+                <p>Thank you for saying "Yes!" 🌹</p>
+                <p>Looking forward to our special date!</p>
+                <p>and HAPPY NEW YEAR to you!!</p>
+                <img src="https://placekitten.com/400/300" alt="Excited cat"> <!-- Add a playful image -->
+            `;
+            customAlert.style.display = 'block';
+
+            // Start fireworks animation
+            startFireworksAnimation();
+
+            // Close the custom alert and fireworks after 10 seconds
+            setTimeout(() => {
+                customAlert.style.display = 'none';
+                stopFireworksAnimation();
+            }, 10000); // Adjust the time as needed
+        }
+
+        function moveNoButton() {
+            const noButton = document.getElementById('no');
+            const buttonWidth = noButton.offsetWidth;
+            const buttonHeight = noButton.offsetHeight;
+
+            const maxPosX = 30 - buttonWidth;
+            const maxPosY = 30 - buttonHeight;
+
+            const randomX = Math.random() * maxPosX;
+            const randomY = Math.random() * maxPosY;
+
+            noButton.style.transform = `translate(${randomX}vw, ${randomY}vh)`;
+            noButton.classList.add('hovered');
+        }
+
+        function resetNoButton() {
+            const noButton = document.getElementById('no');
+            noButton.style.transform = 'translate(0, 0)';
+            noButton.classList.remove('hovered');
+        }
+
+        function startFireworksAnimation() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            document.body.appendChild(canvas);
+
+            const dots = [];
+
+            function createDot(x, y, color, radius, velocity) {
+                return {
+                    x,
+                    y,
+                    radius,
+                    color,
+                    velocity,
+                    life: 1000,
+                };
+            }
+
+            function animate() {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                for (let i = 0; i < dots.length; i++) {
+                    const dot = dots[i];
+
+                    dot.x += dot.velocity.x;
+                    dot.y += dot.velocity.y;
+
+                    dot.velocity.y += 0.05;
+
+                    ctx.beginPath();
+                    ctx.arc(dot.x, dot.y, dot.radius, 0, Math.PI * 100);
+                    ctx.fillStyle = dot.color;
+                    ctx.fill();
+                    ctx.closePath();
+
+                    dot.life--;
+
+                    if (dot.life <= 0) {
+                        dots.splice(i, 50);
+                        i--;
+                    }
+                }
+
+                requestAnimationFrame(animate);
+            }
+
+            function burst(x, y) {
+                for (let i = 0; i < 200; i++) {
+                    const color = `rgb(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255})`;
+                    const radius = Math.random() * 2 + 1;
+                    const velocity = {
+                        x: Math.random() * 6 - 3,
+                        y: Math.random() * 5 - 10,
+                    };
+                    dots.push(createDot(x, y, color, radius, velocity));
+                }
+            }
+
+            function startAnimation() {
+                const numberOfDots = 100;
+
+                for (let i = 0; i < numberOfDots; i++) {
+                    const x = Math.random() * canvas.width;
+                    const y = canvas.height;
+                    const color = `rgb(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255})`;
+                    const radius = Math.random() * 5 + 2;
+                    const velocity = {
+                        x: Math.random() * 4 - 2,
+                        y: Math.random() * -8 - 2
+                    };
+                    dots.push(createDot(x, y, color, radius, velocity));
+                }
+
+                animate();
+            }
+
+            // Trigger burst effect on click
+            canvas.addEventListener('click', (event) => {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = event.clientX - rect.left;
+                const mouseY = event.clientY - rect.top;
+                burst(mouseX, mouseY);
+            });
+
+            startAnimation();
+        }
+
+        function stopFireworksAnimation() {
+            const canvas = document.querySelector('canvas');
+            if (canvas) {
+                document.body.removeChild(canvas);
+            }
+        }
+    </script>
+</body>
+
+</html>
