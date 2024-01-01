@@ -119,20 +119,25 @@
     <script>
       
         function handleNameEntered() {
-            // Get the entered name
-            const userName = document.getElementById('nameInput').value;
+    // Get the entered name
+    const userName = document.getElementById('nameInput').value.trim();
 
-            // Hide the input and display the content
-            const inputContainer = document.getElementById('container');
-            inputContainer.style.display = 'none';
+    // Check if the username is not empty and contains only alphabets
+    if (/^[a-zA-Z]+$/.test(userName)) {
+        // Hide the input and display the content
+        const inputContainer = document.getElementById('container');
+        inputContainer.style.display = 'none';
 
-            const contentDiv = document.getElementById('content');
-            contentDiv.style.display = 'block';
+        const contentDiv = document.getElementById('content');
+        contentDiv.style.display = 'block';
 
-            const questionDiv = document.getElementById('question');
-            questionDiv.innerHTML = `Dear <span class="red-text">${userName}</span>,<br/>Would you like to go on a date with me?`;
-        }
-      
+        const questionDiv = document.getElementById('question');
+        questionDiv.innerHTML = `Dear <span class="red-text">${userName}</span>,<br/>Would you like to go on a date with me?`;
+    } else {
+        // Display an alert or take appropriate action for invalid input
+        alert('Please enter a valid first name with alphabets only.');
+    }
+}     
         function handleYesClick() {
             // Create and display custom alert
             const customAlert = document.getElementById('custom-alert');
